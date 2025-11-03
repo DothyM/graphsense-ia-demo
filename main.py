@@ -98,6 +98,17 @@ def visualizar():
     """
     return HTMLResponse(content=html_content)
 
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from fastapi import Request
+
+templates = Jinja2Templates(directory="templates")
+
+@app.get("/visualizar", response_class=HTMLResponse)
+async def visualizar(request: Request):
+    return templates.TemplateResponse("visualizar.html", {"request": request})
+
+
 # Rodar localmente (Render ignora isso, mas ajuda se testar no PC)
 if __name__ == "__main__":
     import uvicorn
