@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>GraphSense • IA 95% (Demo)</title>
+  <style>
+    body {
+      background-color: #0f0f0f;
+      color: #ffffff;
+      font-family: "Segoe UI", Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    h1 {
+      margin-bottom: 10px;
+      color: #4CAF50;
+    }
+    p {
+      color: #aaa;
+      margin-top: 0;
+    }
+    button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 15px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    canvas {
+      margin-top: 25px;
+      background: #1c1c1c;
+      border-radius: 8px;
+      padding: 10px;
+      max-width: 90%;
+      height: 400px;
+    }
+    .info {
+      margin-top: 15px;
+      background: #1a1a1a;
+      padding: 15px 25px;
+      border-radius: 8px;
+      border: 1px solid #2a2a2a;
+      max-width: 600px;
+      text-align: left;
+    }
+    .info b {
+      color: #4CAF50;
+    }
+  </style>
+</head>
+<body>
+  <h1>📊 GraphSense IA Demo</h1>
+  <p>Simulação de mercado com IA e precisão de até 95%</p>
+  <button onclick="atualizar()">Atualizar gráfico</button>
+
+  <div class="info">
+    <p><b>Tendência:</b> <span id="tendencia">---</span></p>
+    <p><b>Confiança da IA:</b> <span id="confianca">---</span>%</p>
+    <p><b>Saldo:</b> R$ <span id="saldo">---</span></p>
+    <p><b>Lucro:</b> R$ <span id="lucro">---</span></p>
+  </div>
+
+  <canvas id="grafico"></canvas>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    async function atualizar() {
+      const resposta = await fetch('/grafico');
+      const dados = await resposta.json();
+
+      document.getElementById("tendencia").innerText = dados.tendencia.toUpperCase();
+      document.getElementById("confianca").innerText = dados.confianca;
+      document.getElementById("saldo").innerText = dados.saldo;
+      document.getElementById("lucro").innerText = dados.lucro;
+
+      const ctx = document.getElementById('grafico').getContext('2d');
+      const labels = dados.candles.map(c => c.time);
+      const valores = dados.candles.map(c => c.close);
+
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Preço',
+            data: valores,
+            borderColor: '#4CAF50',
+            backgroundColor: 'rgba(76, 175, 80, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.2
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: { ticks: { color: "#aaa" } },
+            y: { ticks: { color: "#aaa" } }
+          }
+        }
+      });
+    }
+    atualizar();
+  </script>
+</body>
+</html>
