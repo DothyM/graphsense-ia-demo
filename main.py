@@ -5,7 +5,9 @@ from fastapi.templating import Jinja2Templates
 app = FastAPI()
 
 # --- Configuração de templates ---
-templates = Jinja2Templates(directory="templates")
+
+modelos = Jinja2Templates(directory="templates")
+
 
 # --- Rota inicial ---
 @app.get("/", response_class=HTMLResponse)
