@@ -5,8 +5,18 @@ from fastapi.templating import Jinja2Templates
 app = FastAPI()
 
 # --- Configuração de templates ---
+from fastapi.templating import Jinja2Templates
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
 
-modelos = Jinja2Templates(directory="templates")
+app = FastAPI()
+
+modelos = Jinja2Templates(directory="modelos")
+
+@app.get("/visualizar", response_class=HTMLResponse)
+async def visualizar(request: Request):
+    return modelos.TemplateResponse("visualizar.html", {"request": request})
+
 
 
 # --- Rota inicial ---
