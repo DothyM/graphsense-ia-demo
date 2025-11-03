@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GraphSense • Plataforma IA 95%</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background-color: #0b0e11;
+      color: #e0e0e0;
+      display: flex;
+      height: 100vh;
+    }
+    .sidebar {
+      width: 300px;
+      background: #111418;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: inset -2px 0 0 #1f2a38;
+    }
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 22px;
+      color: #00c896;
+      text-align: center;
+    }
+    canvas {
+      width: 90%;
+      height: 60%;
+      max-width: 900px;
+      background-color: #161a1e;
+      border-radius: 10px;
+      box-shadow: 0 0 12px #0f0f0f;
+      padding: 15px;
+    }
+    .info {
+      background: #1a1e24;
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 15px;
+    }
+    .balance {
+      font-size: 18px;
+      color: #00ff99;
+    }
+    .loss {
+      color: #ff5c5c;
+    }
+    .gain {
+      color: #00e06a;
+    }
+    .signal {
+      margin-top: 10px;
+      font-size: 16px;
+    }
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      color: #666;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div>
+      <h1>📊 GraphSense IA</h1>
+      <div class="info">
+        <p><b>Conta Demo:</b> <span class="balance">R$ 10.000,00</span></p>
+        <p><b>Lucro:</b> <span class="gain">+ R$ 1.250,00</span></p>
+        <p><b>Taxa de Acerto:</b> 95%</p>
+      </div>
+      <div class="info">
+        <p><b>Sinal Atual:</b> <span class="signal" id="signal">🔼 Tendência de Alta</span></p>
+        <p><b>Confiança da IA:</b> <span id="confidence">94%</span></p>
+      </div>
+    </div>
+    <div class="footer">GraphSense • IA Financeira ©2025</div>
+  </div>
+
+  <div class="main">
+    <canvas id="chart"></canvas>
+  </div>
+
+  <script>
+    const ctx = document.getElementById('chart').getContext('2d');
+    const data = {
+      labels: Array.from({ length: 30 }, (_, i) => `T${i+1}`),
+      datasets: [{
+        label: 'Preço (R$)',
+        data: Array.from({ length: 30 }, () => 100 + Math.random() * 20),
+        borderColor: '#00ff99',
+        backgroundColor: 'rgba(0, 255, 153, 0.15)',
+        fill: true,
+        tension: 0.3
+      }]
+    };
+
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data,
+      options: {
+        plugins: { legend: { labels: { color: '#e0e0e0' } } },
+        scales: {
+          x: { ticks: { color: '#aaa' }, grid: { color: '#222' } },
+          y: { ticks: { color: '#aaa' }, grid: { color: '#222' } }
+        }
+      }
+    });
+
+    // Simula variação de preço
+    setInterval(() => {
+      data.datasets[0].data.shift();
+      data.datasets[0].data.push(100 + Math.random() * 20);
+      chart.update();
+
+      const up = Math.random() > 0.5;
+      document.getElementById("signal").innerHTML = up ? "🔼 Tendência de Alta" : "🔽 Tendência de Baixa";
+      document.getElementById("signal").style.color = up ? "#00ff99" : "#ff5c5c";
+      document.getElementById("confidence").innerText = `${90 + Math.random() * 10 | 0}%`;
+    }, 2000);
+  </script>
+</body>
+</html>
