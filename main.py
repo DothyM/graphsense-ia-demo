@@ -1,35 +1,26 @@
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
+import random
 
+# Inicializa o app
 app = FastAPI()
 
-# --- Configuração de templates ---
-from fastapi.templating import Jinja2Templates
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
+# Caminho dos templates HTML
+templates = Jinja2Templates(directory="modelos")
 
-app = FastAPI()
-
-modelos = Jinja2Templates(directory="modelos")
-
-@app.get("/visualizar", response_class=HTMLResponse)
-async def visualizar(request: Request):
-    return modelos.TemplateResponse("visualizar.html", {"request": request})
-
-
-
-# --- Rota inicial ---
-@app.get("/", response_class=HTMLResponse)
+# Rota principal para verificar status
+@app.get("/", response_class=JSONResponse)
 async def root():
     return {"mensagem": "🚀 GraphSense IA Demo ativa! Vá até /visualizar para ver o painel."}
 
-# --- Rota para exibir o painel profissional ---
+# Rota para gerar dados simulados (pode ser expandida depois)
+@app.get("/grafico", response_class=JSONResponse)
+async def grafico():
+    dados = [{"x": i, "y": round(random.uniform(90, 110), 2)} for i in range(30)]
+    return {"dados": dados}
+
+# Rota para exibir a interface
 @app.get("/visualizar", response_class=HTMLResponse)
 async def visualizar(request: Request):
     return templates.TemplateResponse("visualizar.html", {"request": request})
-
-# --- Rodar localmente (Render ignora isso, mas útil pra testes locais) ---
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
