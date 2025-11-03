@@ -1,136 +1,271 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GraphSense • Plataforma IA 95%</title>
+  <title>GraphSense IA - Plataforma Profissional</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial@3.3.0/dist/chartjs-chart-financial.min.js"></script>
   <style>
     body {
       margin: 0;
       font-family: "Poppins", sans-serif;
-      background-color: #0b0e11;
-      color: #e0e0e0;
+      background-color: #0f1116;
+      color: #fff;
       display: flex;
       height: 100vh;
+      overflow: hidden;
     }
+
+    /* ===== MENU LATERAL ===== */
     .sidebar {
-      width: 300px;
-      background: #111418;
-      padding: 20px;
+      width: 270px;
+      background: linear-gradient(180deg, #11131a, #0c0d10);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      box-shadow: inset -2px 0 0 #1f2a38;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.6);
     }
+
+    .sidebar h2 {
+      text-align: center;
+      padding: 20px 0;
+      color: #4CAF50;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .menu {
+      flex: 1;
+      padding: 15px;
+    }
+
+    .menu button {
+      width: 100%;
+      margin: 8px 0;
+      padding: 10px;
+      background: #1b1e26;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .menu button:hover {
+      background: #4CAF50;
+      color: black;
+    }
+
+    /* ===== CONTA DEMO E IA ===== */
+    .info {
+      padding: 15px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      background: #11131a;
+    }
+
+    .info h3 {
+      margin: 0;
+      font-size: 16px;
+      color: #4CAF50;
+    }
+
+    .ia-box {
+      margin-top: 10px;
+      padding: 10px;
+      background: #1b1e26;
+      border-radius: 6px;
+    }
+
+    .bar {
+      background: #222;
+      height: 10px;
+      border-radius: 6px;
+      overflow: hidden;
+      margin-top: 5px;
+    }
+
+    .bar-fill {
+      background: #4CAF50;
+      height: 100%;
+      width: 0%;
+      transition: width 1s ease;
+    }
+
+    /* ===== CONTEÚDO PRINCIPAL ===== */
     .main {
       flex: 1;
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      align-items: center;
+      background-color: #0f1116;
       padding: 20px;
     }
-    h1 {
-      font-size: 22px;
-      color: #00c896;
-      text-align: center;
+
+    .top-bar {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 10px;
     }
+
+    .top-bar button {
+      padding: 10px 18px;
+      background-color: #4CAF50;
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .top-bar button:hover {
+      background-color: #45a049;
+    }
+
     canvas {
-      width: 90%;
-      height: 60%;
-      max-width: 900px;
-      background-color: #161a1e;
-      border-radius: 10px;
-      box-shadow: 0 0 12px #0f0f0f;
-      padding: 15px;
-    }
-    .info {
-      background: #1a1e24;
+      flex: 1;
+      background-color: #0c0d10;
       border-radius: 8px;
-      padding: 15px;
-      margin-top: 15px;
     }
-    .balance {
-      font-size: 18px;
-      color: #00ff99;
-    }
-    .loss {
-      color: #ff5c5c;
-    }
-    .gain {
-      color: #00e06a;
-    }
-    .signal {
-      margin-top: 10px;
-      font-size: 16px;
-    }
-    .footer {
-      text-align: center;
-      font-size: 12px;
-      color: #666;
-      margin-top: 20px;
-    }
+
   </style>
 </head>
 <body>
+
+  <!-- MENU LATERAL -->
   <div class="sidebar">
     <div>
-      <h1>📊 GraphSense IA</h1>
-      <div class="info">
-        <p><b>Conta Demo:</b> <span class="balance">R$ 10.000,00</span></p>
-        <p><b>Lucro:</b> <span class="gain">+ R$ 1.250,00</span></p>
-        <p><b>Taxa de Acerto:</b> 95%</p>
-      </div>
-      <div class="info">
-        <p><b>Sinal Atual:</b> <span class="signal" id="signal">🔼 Tendência de Alta</span></p>
-        <p><b>Confiança da IA:</b> <span id="confidence">94%</span></p>
+      <h2>💹 GraphSense IA</h2>
+      <div class="menu">
+        <button onclick="changeChart('line')">📈 Gráfico de Linha</button>
+        <button onclick="changeChart('candlestick')">🕯️ Gráfico de Candle</button>
+        <button onclick="refreshData()">🔄 Atualizar Dados</button>
       </div>
     </div>
-    <div class="footer">GraphSense • IA Financeira ©2025</div>
+
+    <div class="info">
+      <h3>💰 Conta Demo</h3>
+      <p>Saldo: <b id="saldo">R$ 10.000</b></p>
+      <p>Lucro: <b id="lucro">+R$ 0</b></p>
+      <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 10px 0;">
+      <h3>🤖 IA de Mercado</h3>
+      <div class="ia-box">
+        <p>Tendência: <b id="tendencia">Neutra</b></p>
+        <p>Confiança:</p>
+        <div class="bar"><div id="conf-bar" class="bar-fill"></div></div>
+        <p style="margin-top: 8px;">Força: <span id="forca">Média</span></p>
+        <p style="font-size: 13px; opacity: 0.8;" id="resumo">Analisando volatilidade do mercado...</p>
+      </div>
+    </div>
   </div>
 
+  <!-- ÁREA PRINCIPAL -->
   <div class="main">
+    <div class="top-bar">
+      <button onclick="refreshData()">Atualizar Dados</button>
+    </div>
     <canvas id="chart"></canvas>
   </div>
 
   <script>
-    const ctx = document.getElementById('chart').getContext('2d');
-    const data = {
-      labels: Array.from({ length: 30 }, (_, i) => `T${i+1}`),
-      datasets: [{
-        label: 'Preço (R$)',
-        data: Array.from({ length: 30 }, () => 100 + Math.random() * 20),
-        borderColor: '#00ff99',
-        backgroundColor: 'rgba(0, 255, 153, 0.15)',
-        fill: true,
-        tension: 0.3
-      }]
+    const ctx = document.getElementById("chart").getContext("2d");
+
+    let chartType = "line";
+    let chart;
+    let saldo = 10000;
+    let lucroTotal = 0;
+
+    const createChart = (type) => {
+      if (chart) chart.destroy();
+
+      const data = generateData(type);
+      chart = new Chart(ctx, {
+        type: type === "candlestick" ? "candlestick" : "line",
+        data,
+        options: {
+          plugins: { legend: { labels: { color: "#fff" } } },
+          scales: {
+            x: { ticks: { color: "#aaa" }, grid: { color: "#222" } },
+            y: { ticks: { color: "#aaa" }, grid: { color: "#222" } }
+          }
+        }
+      });
     };
 
-    const chart = new Chart(ctx, {
-      type: 'line',
-      data,
-      options: {
-        plugins: { legend: { labels: { color: '#e0e0e0' } } },
-        scales: {
-          x: { ticks: { color: '#aaa' }, grid: { color: '#222' } },
-          y: { ticks: { color: '#aaa' }, grid: { color: '#222' } }
-        }
+    function generateData(type) {
+      const labels = Array.from({ length: 30 }, (_, i) => i + 1);
+      if (type === "candlestick") {
+        const candles = labels.map(() => ({
+          o: rand(90, 100),
+          h: rand(100, 105),
+          l: rand(85, 95),
+          c: rand(90, 100)
+        }));
+        return {
+          datasets: [{
+            label: "Ativo Demo",
+            data: candles,
+            borderColor: "#4CAF50",
+            color: { up: "#4CAF50", down: "#e53935", unchanged: "#999" }
+          }]
+        };
+      } else {
+        const values = labels.map(() => rand(90, 100));
+        return {
+          labels,
+          datasets: [{
+            label: "Ativo Demo",
+            data: values,
+            borderColor: "#4CAF50",
+            tension: 0.3,
+            fill: false
+          }]
+        };
       }
-    });
+    }
 
-    // Simula variação de preço
-    setInterval(() => {
-      data.datasets[0].data.shift();
-      data.datasets[0].data.push(100 + Math.random() * 20);
-      chart.update();
+    const rand = (min, max) => Math.random() * (max - min) + min;
 
-      const up = Math.random() > 0.5;
-      document.getElementById("signal").innerHTML = up ? "🔼 Tendência de Alta" : "🔽 Tendência de Baixa";
-      document.getElementById("signal").style.color = up ? "#00ff99" : "#ff5c5c";
-      document.getElementById("confidence").innerText = `${90 + Math.random() * 10 | 0}%`;
-    }, 2000);
+    function changeChart(type) {
+      chartType = type;
+      createChart(type);
+    }
+
+    function refreshData() {
+      // Atualiza gráfico
+      createChart(chartType);
+
+      // Simula lucro ou perda
+      const resultado = Math.random() < 0.5 ? -rand(20, 200) : rand(20, 200);
+      lucroTotal += resultado;
+      saldo += resultado;
+      document.getElementById("saldo").innerText = "R$ " + saldo.toFixed(2);
+      document.getElementById("lucro").innerText = (resultado >= 0 ? "+" : "") + "R$ " + resultado.toFixed(2);
+
+      // Atualiza painel IA
+      atualizarIA();
+    }
+
+    function atualizarIA() {
+      const tendencias = ["Alta", "Baixa", "Neutra"];
+      const cores = ["#4CAF50", "#e53935", "#ccc"];
+      const conf = rand(60, 99);
+      const forca = conf > 90 ? "Forte" : conf > 75 ? "Média" : "Fraca";
+      const tipo = Math.floor(rand(0, 3));
+      const tendencia = tendencias[tipo];
+
+      document.getElementById("tendencia").innerText = tendencia;
+      document.getElementById("tendencia").style.color = cores[tipo];
+      document.getElementById("forca").innerText = forca;
+      document.getElementById("conf-bar").style.width = conf + "%";
+      document.getElementById("resumo").innerText =
+        tendencia === "Alta" ? "IA detectou movimento ascendente com " + conf.toFixed(0) + "% de confiança." :
+        tendencia === "Baixa" ? "IA prevê reversão de preço, queda provável." :
+        "Mercado lateralizado, aguardando rompimento.";
+    }
+
+    // Inicia o painel
+    createChart(chartType);
+    atualizarIA();
   </script>
 </body>
 </html>
