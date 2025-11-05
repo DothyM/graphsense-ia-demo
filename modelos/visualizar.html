@@ -2,340 +2,386 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>GraphSense IA • Plataforma</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- Chart.js + financial (candlestick) -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial@3.3.0"></script>
+  <!-- Chart.js v4 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <!-- Plugin financeiro (candlestick) -->
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial@3.3.0/build/index.umd.min.js"></script>
 
   <style>
-    :root {
-      --bg:#0b0c0e; --panel:#121417; --text:#e6ffe6; --muted:#9fb3a6;
-      --green:#00ff99; --green2:#00d47d; --red:#ff4d4d; --accent:#62ffa6;
-      --shadow: 0 0 24px rgba(0,255,153,.15);
+    :root{
+      --bg:#0f1216;
+      --panel:#12171d;
+      --bord:#0f2a1d;
+      --accent:#31d17b;
+      --accent-2:#00c78a;
+      --text:#e6f1ee;
+      --muted:#a6b1ad;
+      --warn:#ffbf00;
+      --bear:#ef5350;
+      --bull:#26a69a;
+      --blue:#03A9F4;
     }
     *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Arial,sans-serif}
-    header{display:flex;gap:16px;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid #1b1d22;background:#0d0f12;position:sticky;top:0;z-index:10}
-    .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:22px;color:var(--accent)}
-    .brand span{opacity:.85}
-    .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-    select,button,.pill{background:var(--panel);color:var(--text);border:1px solid #1b1f25;border-radius:10px;padding:10px 12px}
-    button{cursor:pointer;box-shadow:var(--shadow);font-weight:700}
-    button.green{background:linear-gradient(180deg,var(--green),var(--green2));color:#001a11;border:none}
-    button.red{background:linear-gradient(180deg,#ff8080,var(--red));color:#2a0000;border:none}
-    .pill{font-weight:700}
-    main{padding:22px;display:grid;grid-template-columns:1fr 320px;gap:18px}
-    @media (max-width:1100px){main{grid-template-columns:1fr}}
-    .card{background:var(--panel);border:1px solid #1a2026;border-radius:14px;padding:14px;box-shadow:var(--shadow)}
-    .stack{display:flex;flex-direction:column;gap:12px}
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .title{font-weight:800;color:#d6ffe6}
-    .muted{color:var(--muted);font-size:13px}
-    .balance{display:flex;gap:12px;align-items:center}
-    .kpi{background:#0f1317;border:1px solid #1b222b;border-radius:10px;padding:10px 12px}
-    .signal{padding:10px;border-radius:10px;background:#0f1614;border:1px dashed #284a3b}
-    canvas{background:#0f1215;border-radius:10px}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font:400 16px/1.4 "Inter", system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+    }
+
+    .topbar{
+      display:flex;
+      gap:14px;
+      align-items:center;
+      padding:14px 18px;
+      border-bottom:1px solid #13201a;
+      background:linear-gradient(180deg,#0c1014, #0f1216);
+      position:sticky; top:0; z-index:50;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.3px;
+      color:var(--accent);
+      font-size:22px;
+    }
+    .badge{ background:#0e1a14; border:1px solid #153a2a; color:var(--accent); padding:8px 10px; border-radius:10px; font-weight:700 }
+    .chip{ background:#0e141b; border:1px solid #1a293a; color:#bde1ff; padding:8px 10px; border-radius:10px; font-weight:700 }
+
+    .btn{
+      background:#0d1712; color:var(--text);
+      border:1px solid #193c2b; padding:10px 14px; border-radius:10px;
+      font-weight:700; cursor:pointer;
+      transition:.15s ease; box-shadow:0 0 0 0 rgba(0,0,0,.0);
+    }
+    .btn:hover{ transform:translateY(-1px); border-color:#236645 }
+    .btn.accent{ background:#10291f; border-color:#1f6a47; color:#baffdf }
+    .btn.warn{ background:#1e1a0a; border-color:#866b0e; color:#ffe598 }
+
+    .wrap{
+      padding:18px;
+      display:grid;
+      gap:18px;
+      grid-template-columns: 1fr 360px;
+    }
+    .card{
+      background:var(--panel);
+      border:1px solid var(--bord);
+      border-radius:16px;
+      padding:14px;
+      box-shadow: 0 0 0 1px rgba(49,209,123,.05), 0 10px 30px rgba(0,0,0,.25);
+    }
+    .title{
+      margin:4px 0 12px 4px; color:#cfece0; font-weight:800; letter-spacing:.3px;
+    }
+    .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:18px }
+    canvas{ width:100% !important; height:420px !important; }
+
+    .side{
+      display:flex; flex-direction:column; gap:14px;
+      position:sticky; top:74px; height:calc(100vh - 100px); overflow:auto; padding-bottom:10px;
+    }
+    label{ color:var(--muted); font-size:14px; }
+    .row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap }
+
+    .switch{ display:flex; align-items:center; gap:8px; }
+    .switch input{ width:18px; height:18px; cursor:pointer }
+    .kpi{ display:flex; gap:10px; flex-wrap:wrap; align-items:center }
+    .kpi .item{ background:#0d1418; border:1px solid #1a2a36; padding:8px 10px; border-radius:10px; }
+    .muted{ color:var(--muted) }
+
+    @media (max-width: 1100px){
+      .wrap{ grid-template-columns:1fr }
+      .side{ position:relative; top:auto; height:auto }
+      canvas{ height:360px !important; }
+    }
   </style>
 </head>
 <body>
-  <header>
-    <div class="brand">
-      🚀 <span>GraphSense IA • Plataforma</span>
+
+  <div class="topbar">
+    <div class="brand">🚀 GraphSense IA • Plataforma</div>
+    <div class="kpi">
+      <div class="badge">Demo</div>
+      <div class="badge">Saldo: R$ 10.000,00</div>
+      <div class="chip">P/L: R$ 0,00</div>
     </div>
 
-    <div class="controls">
-      <div class="pill" id="modePill">🧪 Demo</div>
-      <div class="balance">
-        <div class="kpi">Saldo: <b id="saldo">R$ 10.000,00</b></div>
-        <div class="kpi">P/L: <b id="pl-dia">R$ 0,00</b></div>
-      </div>
-      <select id="symbol">
-        <option value="SIM-EURUSD">EURUSD</option>
-        <option value="SIM-BTCUSD">BTCUSD</option>
-        <option value="SIM-AAPL">AAPL</option>
+    <div style="margin-left:auto" class="row">
+      <select id="selAtivo" class="chip">
+        <option>EURUSD</option>
+        <option>USDJPY</option>
+        <option>BTCUSD</option>
       </select>
-      <select id="tf">
+      <select id="selTempo" class="chip">
         <option value="1m">1m</option>
         <option value="5m">5m</option>
         <option value="15m">15m</option>
       </select>
-      <button onclick="reloadData()">Atualizar</button>
-      <button onclick="toggleType()">Alternar: Linha ↔ Candle</button>
-      <label class="muted"><input type="checkbox" id="sma20Ck" checked> SMA 20</label>
-      <label class="muted"><input type="checkbox" id="sma50Ck" checked> SMA 50</label>
+
+      <button class="btn" id="btnAtualizar">Atualizar</button>
+      <button class="btn accent" id="btnAlternar">Alternar: Linha ↔ Candle</button>
     </div>
-  </header>
+  </div>
 
-  <main>
-    <section class="card stack">
-      <div class="row" style="justify-content:space-between">
-        <div class="title">📈 Gráfico</div>
-        <div class="row">
-          <button class="green" onclick="executar('buy')">Comprar</button>
-          <button class="red" onclick="executar('sell')">Vender</button>
-        </div>
-      </div>
-      <canvas id="chartMain" height="380"></canvas>
-      <div class="row">
-        <div class="card stack" style="flex:1">
-          <div class="title">RSI (14)</div>
-          <canvas id="chartRSI" height="120"></canvas>
-        </div>
-        <div class="card stack" style="flex:1">
-          <div class="title">MACD (12,26,9)</div>
-          <canvas id="chartMACD" height="120"></canvas>
-        </div>
-      </div>
-    </section>
+  <div class="wrap">
+    <div class="card">
+      <h3 class="title">Gráfico</h3>
+      <canvas id="chartMain"></canvas>
+    </div>
 
-    <aside class="card stack">
-      <div class="title">🤖 Sinal da IA</div>
-      <div class="signal">
-        <div class="row" style="justify-content:space-between">
-          <div>Último sinal: <b id="last-signal">—</b></div>
-          <div>Confiança: <b id="last-conf">—</b></div>
-        </div>
-        <div class="muted" id="reasons">Motivos…</div>
+    <div class="side">
+      <div class="card">
+        <h3 class="title">Preferências</h3>
+        <div class="switch"><input type="checkbox" id="cbSMA20" checked> <label for="cbSMA20">SMA 20</label></div>
+        <div class="switch"><input type="checkbox" id="cbSMA50" checked> <label for="cbSMA50">SMA 50</label></div>
+        <div style="height:8px"></div>
+        <div class="switch"><input type="checkbox" id="cbAuto" checked> <label for="cbAuto">Atualizar sinal automaticamente</label></div>
+        <p class="muted">Motivos do sinal aparecerão aqui quando plugarmos IA.</p>
       </div>
 
-      <div class="stack">
-        <div class="title">⚙️ Preferências</div>
-        <label class="muted"><input type="checkbox" id="fractalCk"> Marcar fractais</label>
-        <label class="muted"><input type="checkbox" id="autoIA" checked> Atualizar sinal automaticamente</label>
+      <div class="card">
+        <h3 class="title">Ajuda</h3>
+        <p class="muted">• Clique em <b>Alternar</b> para mudar Linha ↔ Candle.<br>
+        • Ative/desative <b>SMA 20/50</b> para ver as médias.<br>
+        • <b>Atualizar</b> puxa uma nova simulação do endpoint <code>/ohlc</code>.</p>
       </div>
-    </aside>
-  </main>
+    </div>
+
+    <div class="grid2" style="grid-column:1 / -1">
+      <div class="card">
+        <h3 class="title">RSI (14)</h3>
+        <canvas id="chartRSI"></canvas>
+      </div>
+      <div class="card">
+        <h3 class="title">MACD (12,26,9)</h3>
+        <canvas id="chartMACD"></canvas>
+      </div>
+    </div>
+  </div>
 
   <script>
-    // -------- estado e util --------
-    let type = 'candlestick';     // 'line' ou 'candlestick'
-    let ohlc = [];                // dados do backend
-    let closes = [];              // array de fechamentos
-    let chartMain, chartRSI, chartMACD;
-    let saldo = 10000; let plDia = 0;
+    // -----------------------
+    // Estado global
+    // -----------------------
+    let chartMain = null, chartRSI = null, chartMACD = null;
+    let modo = 'candle'; // 'linha' | 'candle'
+    const elSMA20 = document.getElementById('cbSMA20');
+    const elSMA50 = document.getElementById('cbSMA50');
 
-    const fmtBR = v => v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+    // Botões
+    document.getElementById('btnAlternar').onclick = () => {
+      modo = (modo === 'candle') ? 'linha' : 'candle';
+      renderAll();
+    };
+    document.getElementById('btnAtualizar').onclick = () => renderAll();
 
-    document.getElementById('saldo').textContent = 'R$ ' + fmtBR(saldo);
-    document.getElementById('pl-dia').textContent = 'R$ ' + fmtBR(plDia);
-
-    // -------- indicadores (JS) --------
-    function SMA(arr, p){
-      if(arr.length < p) return [];
-      let out=[], s=0;
-      for(let i=0;i<p;i++) s += arr[i];
-      out.push(s/p);
-      for(let i=p;i<arr.length;i++){
-        s += arr[i]-arr[i-p];
-        out.push(s/p);
+    // -----------------------
+    // Utils de indicadores
+    // -----------------------
+    function SMA(values, period){
+      const out = [];
+      for(let i=0;i<values.length;i++){
+        const start = Math.max(0,i-period+1);
+        const slice = values.slice(start, i+1);
+        const m = slice.reduce((a,b)=>a+b,0)/slice.length;
+        out.push(+m.toFixed(4));
       }
       return out;
     }
-    function EMA(arr, p){
-      if(arr.length < p) return [];
-      const k = 2/(p+1);
-      let out=[], prev = arr.slice(0,p).reduce((a,b)=>a+b,0)/p;
-      out.push(prev);
-      for(let i=p;i<arr.length;i++){
-        prev = arr[i]*k + prev*(1-k);
-        out.push(prev);
-      }
-      return out;
-    }
-    function RSI(arr, p=14){
-      if(arr.length < p+1) return [];
-      let gains=[],losses=[];
-      for(let i=1;i<=p;i++){
-        const ch = arr[i]-arr[i-1];
-        gains.push(Math.max(ch,0));
-        losses.push(Math.max(-ch,0));
-      }
-      let ag = gains.reduce((a,b)=>a+b,0)/p;
-      let al = losses.reduce((a,b)=>a+b,0)/p;
-      let rsis=[];
-      let rs = (al===0)? Infinity : ag/al;
-      rsis.push(100 - (100/(1+rs)));
-      for(let i=p+1;i<arr.length;i++){
-        const ch = arr[i]-arr[i-1];
-        const g = Math.max(ch,0), l = Math.max(-ch,0);
-        ag = (ag*(p-1)+g)/p; al = (al*(p-1)+l)/p;
-        rs = (al===0)? Infinity : ag/al;
-        rsis.push(100 - (100/(1+rs)));
-      }
-      return rsis;
-    }
-    function MACD(arr, f=12,s=26,sg=9){
-      if(arr.length < s+sg) return {macd:[], signal:[]};
-      const ef = EMA(arr,f), es = EMA(arr,s);
-      const off = es.length - ef.length;
-      let ml=[];
-      for(let i=0;i<ef.length-off;i++) ml.push(ef[i+off]-es[i]);
-      const sig = EMA(ml,sg);
-      if(sig.length>0) ml = ml.slice(-sig.length);
-      return {macd:ml, signal:sig};
+
+    function EMA(values, period){
+      const k = 2/(period+1);
+      const ema = [];
+      values.forEach((v,i)=>{
+        if(i===0){ ema.push(v); }
+        else { ema.push( (v - ema[i-1]) * k + ema[i-1] ); }
+      });
+      return ema.map(v => +v.toFixed(4));
     }
 
-    // -------- render de gráficos --------
+    function RSI(values, period=14){
+      const rsi = [];
+      let gains=0, losses=0;
+      for(let i=1;i<values.length;i++){
+        const ch = values[i]-values[i-1];
+        const g = ch>0? ch : 0;
+        const l = ch<0? -ch: 0;
+        if(i<=period){ gains += g; losses += l; rsi.push(50); }
+        else{
+          gains = (gains*(period-1)+g)/period;
+          losses = (losses*(period-1)+l)/period;
+          const rs = losses===0 ? 100 : gains/losses;
+          const val = 100 - (100/(1+rs));
+          rsi.push(+val.toFixed(2));
+        }
+      }
+      rsi.unshift(50);
+      return rsi;
+    }
+
+    function MACD(values, fast=12, slow=26, signal=9){
+      const emaFast = EMA(values, fast);
+      const emaSlow = EMA(values, slow);
+      const macd = values.map((_,i)=> +(emaFast[i]-emaSlow[i]).toFixed(4));
+      const signalArr = EMA(macd, signal);
+      const hist = macd.map((v,i)=> +(v - signalArr[i]).toFixed(4));
+      return { macd, signal: signalArr, hist };
+    }
+
     function destroyAll(){
-      if(chartMain){ chartMain.destroy(); chartMain=null; }
-      if(chartRSI){ chartRSI.destroy(); chartRSI=null; }
-      if(chartMACD){ chartMACD.destroy(); chartMACD=null; }
+      try{ chartMain?.destroy(); }catch(e){}
+      try{ chartRSI?.destroy(); }catch(e){}
+      try{ chartMACD?.destroy(); }catch(e){}
+      // força limpeza de qualquer cache interno
+      Chart.getChart("chartMain")?.destroy();
+      Chart.getChart("chartRSI")?.destroy();
+      Chart.getChart("chartMACD")?.destroy();
     }
 
-    function renderAll(){
-      destroyAll();
-      Chart.getChart("chartMain")?.destroy();
-  Chart.getChart("chartRSI")?.destroy();
-  Chart.getChart("chartMACD")?.destroy();
+    // -----------------------
+    // Renderização completa
+    // -----------------------
+    async function renderAll(){
+      destroyAll(); // evita "Canvas is already in use"
 
-  const ctx = document.getElementById('chartMain').getContext('2d');
-  ...
-      const ctx = document.getElementById('chartMain').getContext('2d');
-      const ctxR = document.getElementById('chartRSI').getContext('2d');
-      const ctxM = document.getElementById('chartMACD').getContext('2d');
+      // Carrega dados
+      const resp = await fetch('/ohlc?n=160');
+      const j = await resp.json();
+      const dados = j.data;
+      const labels = dados.map(d=>d.x);
+      const closes = dados.map(d=>d.c);
 
-      const labels = ohlc.map(d=>d.x);
-      closes = ohlc.map(d=>d.c);
-      const s20 = SMA(closes,20);
-      const s50 = SMA(closes,50);
-      const rsi = RSI(closes,14);
-      const {macd, signal} = MACD(closes);
+      // Indicadores
+      const sma20 = SMA(closes, 20);
+      const sma50 = SMA(closes, 50);
+      const rsi = RSI(closes, 14);
+      const macdObj = MACD(closes, 12,26,9);
 
-      // --- gráfico principal
-      let datasetsMain = [];
-      if(type==='candlestick'){
-        datasetsMain.push({
-          type:'candlestick',
+      // --------- Gráfico principal
+      const ctxMain = document.getElementById('chartMain').getContext('2d');
+
+      if(modo === 'linha'){
+        const datasets = [{
           label:'Preço',
-          data: ohlc,
-          color:{
-            up:'#00ff99', down:'#ff4d4d',
-            borderUp:'#00ff99', borderDown:'#ff4d4d',
-            wickUp:'#00ff99', wickDown:'#ff4d4d'
+          data: closes,
+          borderColor:'#4CAF50',
+          borderWidth:2,
+          pointRadius:0,
+          tension:0.2
+        }];
+
+        if(elSMA20.checked){
+          datasets.push({
+            label:'SMA 20', data:sma20, borderColor:'#FFEB3B',
+            borderWidth:1.5, pointRadius:0, tension:0.2
+          });
+        }
+        if(elSMA50.checked){
+          datasets.push({
+            label:'SMA 50', data:sma50, borderColor:'#03A9F4',
+            borderWidth:1.5, pointRadius:0, tension:0.2
+          });
+        }
+
+        chartMain = new Chart(ctxMain, {
+          type:'line',
+          data:{ labels, datasets },
+          options:{
+            plugins:{ legend:{ labels:{ color:'#9ad0b3' } } },
+            scales:{
+              x:{ ticks:{ color:'#9aa6a0' } },
+              y:{ ticks:{ color:'#9aa6a0' } }
+            }
           }
         });
-      }else{
-        datasetsMain.push({
-          type:'line', label:'Preço',
-          data: closes, borderColor:'#58ffb0',
-          pointRadius:0, tension:.25
-        });
-      }
-      // SMA overlays
-      if(document.getElementById('sma20Ck').checked){
-        const pad = labels.length - s20.length;
-        datasetsMain.push({
-          type:'line', label:'SMA20', data: Array(pad).fill(null).concat(s20),
-          borderColor:'#28d5ff', borderWidth:1.5, pointRadius:0, tension:.25
-        });
-      }
-      if(document.getElementById('sma50Ck').checked){
-        const pad = labels.length - s50.length;
-        datasetsMain.push({
-          type:'line', label:'SMA50', data: Array(pad).fill(null).concat(s50),
-          borderColor:'#ffcf33', borderWidth:1.5, pointRadius:0, tension:.25
+
+      } else {
+        // Candle
+        const candles = dados.map(d=>({x:d.x, o:d.o, h:d.h, l:d.l, c:d.c}));
+
+        const datasets = [{
+          label:'Preço',
+          data:candles,
+          type:'candlestick',
+          borderColor:'#4CAF50',
+          color:{ up:'#26a69a', down:'#ef5350', unchanged:'#999' }
+        }];
+
+        if(elSMA20.checked){
+          datasets.push({
+            label:'SMA 20',
+            data:sma20.map((v,i)=>({x:labels[i], y:v})),
+            type:'line',
+            borderColor:'#FFEB3B', borderWidth:1.2, pointRadius:0, tension:0.2
+          });
+        }
+        if(elSMA50.checked){
+          datasets.push({
+            label:'SMA 50',
+            data:sma50.map((v,i)=>({x:labels[i], y:v})),
+            type:'line',
+            borderColor:'#03A9F4', borderWidth:1.2, pointRadius:0, tension:0.2
+          });
+        }
+
+        chartMain = new Chart(ctxMain, {
+          data:{ datasets },
+          options:{
+            plugins:{ legend:{ labels:{ color:'#9ad0b3' } } },
+            scales:{
+              x:{ ticks:{ color:'#9aa6a0' } },
+              y:{ ticks:{ color:'#9aa6a0' } }
+            }
+          }
         });
       }
 
-      chartMain = new Chart(ctx, {
-        data:{ labels, datasets: datasetsMain },
+      // --------- RSI
+      const ctxRSI = document.getElementById('chartRSI').getContext('2d');
+      chartRSI = new Chart(ctxRSI, {
+        type:'line',
+        data:{
+          labels, datasets:[{
+            label:'RSI (14)',
+            data:rsi, borderColor:'#FFEB3B',
+            borderWidth:1.5, pointRadius:0
+          }]
+        },
         options:{
-          plugins:{ legend:{labels:{color:'#cfe'}} },
+          plugins:{ legend:{ labels:{ color:'#e7dfa5' } } },
           scales:{
-            x:{ ticks:{color:'#9bb'}, grid:{color:'#1a222a'} },
-            y:{ ticks:{color:'#9bb'}, grid:{color:'#1a222a'} }
-          },
-          parsing:false,
-          responsive:true
+            x:{ ticks:{ color:'#9aa6a0' } },
+            y:{ ticks:{ color:'#9aa6a0' }, suggestedMin:0, suggestedMax:100 }
+          }
         }
       });
 
-      // --- RSI
-      const padRSI = labels.length - rsi.length;
-      chartRSI = new Chart(ctxR,{
+      // --------- MACD
+      const ctxMACD = document.getElementById('chartMACD').getContext('2d');
+      chartMACD = new Chart(ctxMACD, {
         type:'line',
-        data:{
-          labels, 
-          datasets:[{
-            label:'RSI', data:Array(padRSI).fill(null).concat(rsi),
-            borderColor:'#9ad0ff', pointRadius:0, tension:.25
-          },
-          {label:'70', data:Array(labels.length).fill(70), borderColor:'#ff7777', pointRadius:0, borderDash:[6,6]},
-          {label:'30', data:Array(labels.length).fill(30), borderColor:'#77ff77', pointRadius:0, borderDash:[6,6]}
-          ]
-        },
-        options:{ plugins:{legend:{labels:{color:'#cfe'}}}, scales:{x:{ticks:{color:'#899'}},y:{ticks:{color:'#899'}} } }
-      });
-
-      // --- MACD
-      const padMACD = labels.length - signal.length;
-      chartMACD = new Chart(ctxM,{
         data:{
           labels,
           datasets:[
-            {type:'line', label:'MACD', data:Array(padMACD).fill(null).concat(macd), borderColor:'#42ffb3', pointRadius:0, tension:.2},
-            {type:'line', label:'Sinal', data:Array(padMACD).fill(null).concat(signal), borderColor:'#ffb362', pointRadius:0, tension:.2}
+            { label:'MACD', data:macdObj.macd, borderColor:'#00c78a', borderWidth:1.6, pointRadius:0 },
+            { label:'Signal', data:macdObj.signal, borderColor:'#ef5350', borderWidth:1.4, pointRadius:0 }
           ]
         },
-        options:{ plugins:{legend:{labels:{color:'#cfe'}}}, scales:{x:{ticks:{color:'#899'}},y:{ticks:{color:'#899'}}} }
+        options:{
+          plugins:{ legend:{ labels:{ color:'#bfe7db' } } },
+          scales:{
+            x:{ ticks:{ color:'#9aa6a0' } },
+            y:{ ticks:{ color:'#9aa6a0' } }
+          }
+        }
       });
-
-      // IA
-      if(document.getElementById('autoIA').checked){
-        pedirSinalIA();
-      }
     }
 
-    async function reloadData(){
-      const r = await fetch(`/ohlc?n=200`);
-      const j = await r.json();
-      if(j.ok){
-        ohlc = j.data;
-        renderAll();
-      }
-    }
-
-    function toggleType(){
-      type = (type==='candlestick')?'line':'candlestick';
-      renderAll();
-    }
-
-    // -------- IA (chama backend /ia) --------
-    async function pedirSinalIA(){
-      const closesLoc = ohlc.map(d=>d.c);
-      const r = await fetch('/ia', {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({closes: closesLoc})
-      });
-      const j = await r.json();
-      if(j.ok){
-        document.getElementById('last-signal').textContent = j.sinal;
-        document.getElementById('last-conf').textContent = j.confianca + '%';
-        document.getElementById('reasons').innerHTML = j.motivos.map(m=>'• '+m).join('<br/>');
-      }
-    }
-
-    // -------- demo: executar compra/venda --------
-    function executar(side){
-      // simulação simples: resultado = variação do último candle
-      if(!ohlc.length) return;
-      const last = ohlc[ohlc.length-1];
-      const p = last.c - last.o; // “profit” fake
-      const valor = Math.max(1, Math.min(50, Math.round(Math.abs(p)*10)));
-      plDia += (side==='buy' ? p : -p) * 100; // escala
-      saldo += (side==='buy' ? p : -p) * 100;
-      document.getElementById('saldo').textContent = 'R$ ' + fmtBR(saldo);
-      document.getElementById('pl-dia').textContent = 'R$ ' + fmtBR(plDia);
-    }
-
-    // eventos
-    document.getElementById('sma20Ck').addEventListener('change', renderAll);
-    document.getElementById('sma50Ck').addEventListener('change', renderAll);
-
-    // start
-    reloadData();
+    // Render inicial
+    renderAll();
   </script>
 </body>
 </html>
