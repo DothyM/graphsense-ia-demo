@@ -186,6 +186,12 @@
 
     function renderAll(){
       destroyAll();
+      Chart.getChart("chartMain")?.destroy();
+  Chart.getChart("chartRSI")?.destroy();
+  Chart.getChart("chartMACD")?.destroy();
+
+  const ctx = document.getElementById('chartMain').getContext('2d');
+  ...
       const ctx = document.getElementById('chartMain').getContext('2d');
       const ctxR = document.getElementById('chartRSI').getContext('2d');
       const ctxM = document.getElementById('chartMACD').getContext('2d');
