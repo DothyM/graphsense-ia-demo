@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GraphSense IA Demo</title>
+
+    <!-- Biblioteca Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Biblioteca financial para candles -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial@3.3.0"></script>
+
+    <style>
+        body {
+            background-color: #0e0e0e;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+
+        #grafico {
+            max-width: 900px;
+            margin: auto;
+            background-color: #121212;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 0 15px rgba(0, 255, 100, 0.2);
+        }
+
+        .botoes {
+            margin-bottom: 20px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🚀 GraphSense IA Demo</h1>
+
+    <div class="botoes">
+        <button onclick="gerarDados()">Atualizar dados</button>
+        <button onclick="alternarGrafico()">Alternar gráfico (Linha ↔ Candle)</button>
+    </div>
+
+    <div id="grafico">
+        <canvas id="meuGrafico"></canvas>
+    </div>
+
+    <script>
+        let tipoAtual = "line"; // tipo padrão
+        let grafico;
+        let dadosGerados = gerarOHLC();
+
+        const ctx = document.getElementById('meuGrafico').getContext('2d');
+
+        function gerarOHLC() {
+            let dados = [];
+            let valor = 100;
+            for (let i = 0; i < 40; i++) {
+                let open = valor + (Math.random() - 0.5) * 2;
+                let close = open + (Math.random() - 0.5) * 4;
+                let high = Math.max(open, close) + Math.random() * 2;
+                let low = Math.min(open, close) - Math.random() * 2;
+                valor = close;
+                dados.push({ x: i + 1, o: open, h: high, l: low, c: close });
+            }
+            return dados;
+        }
+
+        function gerarDados() {
+            dadosGerados = gerarOHLC();
+            atualizarGrafico();
+        }
+
+        function alternarGrafico() {
+            tipoAtual = tipoAtual === "line" ? "candlestick" : "line";
+            atualizarGrafico();
+        }
+
+        function atualizarGrafico() {
+            if (grafico) grafico.destroy();
+
+            if (tipoAtual === "line") {
+                grafico = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: dadosGerados.map(d => d.x),
+                        datasets: [{
+                            label: 'Preço',
+                            data: dadosGerados.map(d => d.c),
+                            borderColor: '#4CAF50',
+                            borderWidth: 2,
+                            pointRadius: 3,
+                            pointBackgroundColor: '#4CAF50',
+                            fill: false,
+                            tension: 0.25
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: { title: { display: true, text: 'Tempo', color: '#ccc' } },
+                            y: { title: { display: true, text: 'Preço', color: '#ccc' } }
+                        }
+                    }
+                });
+            } else {
+                grafico = new Chart(ctx, {
+                    type: 'candlestick',
+                    data: {
+                        datasets: [{
+                            label: 'Candles',
+                            data: dadosGerados,
+                            borderColor: '#4CAF50',
+                            color: {
+                                up: '#00ff66',
+                                down: '#ff3333',
+                                unchanged: '#999'
+                            }
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { labels: { color: '#fff' } }
+                        },
+                        scales: {
+                            x: {
+                                ticks: { color: '#ccc' },
+                                grid: { color: '#222' }
+                            },
+                            y: {
+                                ticks: { color: '#ccc' },
+                                grid: { color: '#222' }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        atualizarGrafico();
+    </script>
+</body>
+</html>
